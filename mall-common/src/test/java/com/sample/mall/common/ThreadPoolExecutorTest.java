@@ -47,7 +47,7 @@ public class ThreadPoolExecutorTest {
     /**
      * corePoolSize = 5
      * maximumPoolSize = 10
-     * keepAliveTime = 5s
+     * keepAliveTime = 5s  非核心线程的销毁时间
      * workQueue = 无界队列
      * RejectedExecutionHandler = RejectedExecutionException
      */

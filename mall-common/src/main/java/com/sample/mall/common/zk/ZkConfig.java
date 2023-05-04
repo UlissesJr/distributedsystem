@@ -36,7 +36,7 @@ public class ZkConfig {
         IZkDataListener dataListener = new IZkDataListener() {
             @Override
             public void handleDataChange(String path, Object changedData) {
-                System.out.println("更新了配置内容：" + changedData);
+                System.out.println(path + "更新了配置内容：" + changedData);
             }
 
             @Override

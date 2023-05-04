@@ -50,16 +50,23 @@ public class OrderController {
         }
     }
 
-    @SentinelResource(value = "mall/order", fallback = "fallback")
+    @SentinelResource(value = "mall/order2", fallback = "fallback2")
     @GetMapping("/order2/{orderNo}")
     BaseResponse<OrderDTO> getOrder2(@PathVariable(value = "orderNo") Long orderNo){
-            OrderDTO orderDTO = new OrderDTO();
-            orderDTO.setOrderNo(orderNo);
-            return BaseResponse.success(orderDTO);
+
+        int e =1/0;
+
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setOrderNo(orderNo);
+        return BaseResponse.success(orderDTO);
     }
 
     public BaseResponse fallback(Long orderNo, Throwable e) {
         return new BaseResponse<>(ResponseEnum.SYSTEM_BUSY);
+    }
+
+    public BaseResponse fallback2(Long orderNo, Throwable e) {
+        return new BaseResponse<>(ResponseEnum.FEIGN_CALL_EXCEPTION);
     }
 
 }

@@ -19,7 +19,7 @@ public class ZkLock implements Lock {
     private String lockPath;
 
     public ZkLock(String lockPath) {
-        this.lockPath  =lockPath;
+        this.lockPath  = lockPath;
 
         zkClient = new ZkClient(zkServer);
         zkClient.setZkSerializer(new ZkSerializer());

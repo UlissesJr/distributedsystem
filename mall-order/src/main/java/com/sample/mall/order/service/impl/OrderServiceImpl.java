@@ -12,6 +12,7 @@ import com.sample.mall.order.mapper.OrderMapper;
 import com.sample.mall.order.model.OrderDO;
 import com.sample.mall.order.model.OrderItemDO;
 import com.sample.mall.order.service.IOrderService;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -44,6 +45,7 @@ public class OrderServiceImpl implements IOrderService {
      * @param orderDTO
      * @return
      */
+    @GlobalTransactional
     @Override
     public boolean createOrder(OrderDTO orderDTO) {
 

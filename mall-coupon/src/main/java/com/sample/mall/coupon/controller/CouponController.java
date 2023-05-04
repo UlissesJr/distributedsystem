@@ -1,5 +1,6 @@
 package com.sample.mall.coupon.controller;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.sample.mall.common.annotation.MyRateLimiter;
 import com.sample.mall.common.base.BaseResponse;
 import com.sample.mall.common.dto.CouponDTO;
@@ -21,6 +22,8 @@ CouponController {
     @Resource
     ICouponRecordService couponRecordService;
 
+    private final RateLimiter rateLimiter = RateLimiter.create(10);
+
     /**
      * 创建优惠券
      *
@@ -29,6 +32,10 @@ CouponController {
      */
     @PostMapping("/coupon")
     BaseResponse createCoupon(@RequestBody CouponDTO couponDTO){
+        boolean result = rateLimiter.tryAcquire(1,3,TimeUnit.SECONDS);
+        if(!result){
+            // TODO 限流结果
+        }
         couponService.createCoupon(couponDTO);
         return BaseResponse.success();
     }

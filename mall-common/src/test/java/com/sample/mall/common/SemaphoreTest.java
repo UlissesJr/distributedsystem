@@ -55,6 +55,7 @@ public class SemaphoreTest {
         newThread.start();
 
         Thread.sleep(5000);
+        // 中断没有Release();
         newThread.interrupt();
 
         Thread.sleep(1000);

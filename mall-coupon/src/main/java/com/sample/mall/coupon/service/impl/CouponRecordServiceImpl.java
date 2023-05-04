@@ -14,6 +14,7 @@ import com.sample.mall.coupon.service.ICouponRecordService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class CouponRecordServiceImpl implements ICouponRecordService {
@@ -24,28 +25,42 @@ public class CouponRecordServiceImpl implements ICouponRecordService {
     @Resource
     CouponRecordMapper couponRecordMapper;
 
+    ReentrantLock lock = new ReentrantLock();
+
+    /**
+     * Coupon: 优惠券（记录了库存，被领取数量，被使用数量等信息）
+     * CouponRecord：优惠券的领取（记录某个用户，领取了某个优惠券）
+     */
     @Override
     public boolean receiveCoupon(CouponRecordDTO couponRecordDTO) {
-        long couponId = couponRecordDTO.getCouponId();
-        CouponDO couponDO = couponMapper.selectCouponById(couponId);
-        Assert.notNull(couponDO);
 
-        /** 判断是否已经超过发券数量 **/
-        long newTakeCount = couponDO.getTakeCount() + 1;
-        if (newTakeCount > couponDO.getQuota()) {
-            throw new BusinessException(ResponseEnum.COUPON_NOT_ENOUGH);
+        try{
+            lock.lock();
+
+            long couponId = couponRecordDTO.getCouponId();
+            CouponDO couponDO = couponMapper.selectCouponById(couponId);
+            Assert.notNull(couponDO);
+
+            /** 判断是否已经超过发券数量 **/
+            long newTakeCount = couponDO.getTakeCount() + 1;
+            if (newTakeCount > couponDO.getQuota()) {
+                throw new BusinessException(ResponseEnum.COUPON_NOT_ENOUGH);
+            }
+
+            /** 新增优惠券领取记录 **/
+            couponRecordDTO.setStatus(0);
+            CouponRecordDO couponRecordDO = ObjectTransformer.transform(couponRecordDTO, CouponRecordDO.class);
+            int result = couponRecordMapper.insertCouponRecord(couponRecordDO);
+            Assert.singleRowAffected(result);
+
+            /** 更新优惠券已领取数量 **/
+            couponDO.setTakeCount(newTakeCount);
+            result = couponMapper.updateCouponTakeCount(couponDO);
+            return Assert.singleRowAffected(result);
+        }finally{
+            lock.unlock();
         }
 
-        /** 新增优惠券领取记录 **/
-        couponRecordDTO.setStatus(0);
-        CouponRecordDO couponRecordDO = ObjectTransformer.transform(couponRecordDTO, CouponRecordDO.class);
-        int result = couponRecordMapper.insertCouponRecord(couponRecordDO);
-        Assert.singleRowAffected(result);
-
-        /** 更新优惠券已领取数量 **/
-        couponDO.setTakeCount(newTakeCount);
-        result = couponMapper.updateCouponTakeCount(couponDO);
-        return Assert.singleRowAffected(result);
     }
 
     @Override
